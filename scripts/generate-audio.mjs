@@ -1,18 +1,13 @@
 /**
  * Procedural 44.1kHz Stereo WAV Soundscape Generator for "KEAJAIBAN ALAM SEMESTA" (65 Seconds)
- * Generates 100% deterministic, royalty-free cinematic audio tracks directly into public/audio/:
- * 1. ambient-music.wav   (65s) — Hans-Zimmer/BBC-style warm cinematic drone & evolving harmonic pads
- * 2. forest-ambience.wav (13s) — Gentle breeze through leaves + harmonic tropical bird chirps
- * 3. ocean-ambience.wav  (14s) — Deep underwater low-pass swell + resonant sub-aquatic currents
- * 4. wind-ambience.wav   (14s) — High-altitude alpine howling wind gusts
- * 5. impact.wav          (3.5s)— Deep cinematic sub-bass boom + ethereal shimmer tail
+ * Pure JavaScript (.mjs) — Zero TypeScript annotations so `node scripts/generate-audio.mjs` runs natively.
  */
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 
 const SAMPLE_RATE = 44100;
 
-function writeWavFile(filePath: string, left: Float32Array, right: Float32Array) {
+function writeWavFile(filePath, left, right) {
   const numSamples = left.length;
   const numChannels = 2;
   const bytesPerSample = 2; // 16-bit PCM
@@ -26,13 +21,13 @@ function writeWavFile(filePath: string, left: Float32Array, right: Float32Array)
 
   // fmt subchunk
   buffer.write('fmt ', 12);
-  buffer.writeUInt32LE(16, 16); // Subchunk1Size (16 for PCM)
-  buffer.writeUInt16LE(1, 20); // AudioFormat (1 = PCM)
+  buffer.writeUInt32LE(16, 16);
+  buffer.writeUInt16LE(1, 20);
   buffer.writeUInt16LE(numChannels, 22);
   buffer.writeUInt32LE(SAMPLE_RATE, 24);
-  buffer.writeUInt32LE(SAMPLE_RATE * numChannels * bytesPerSample, 28); // ByteRate
-  buffer.writeUInt16LE(numChannels * bytesPerSample, 32); // BlockAlign
-  buffer.writeUInt16LE(16, 34); // BitsPerSample
+  buffer.writeUInt32LE(SAMPLE_RATE * numChannels * bytesPerSample, 28);
+  buffer.writeUInt16LE(numChannels * bytesPerSample, 32);
+  buffer.writeUInt16LE(16, 34);
 
   // data subchunk
   buffer.write('data', 36);
@@ -52,33 +47,25 @@ function writeWavFile(filePath: string, left: Float32Array, right: Float32Array)
   console.log(`Generated ${filePath} (${(buffer.length / 1024 / 1024).toFixed(2)} MB)`);
 }
 
-// Deterministic pseudo-random noise
 let seed = 1337;
-function nextNoise(): number {
+function nextNoise() {
   seed = (seed * 16807) % 2147483647;
-  return (seed / 1073741823.5) - 1.0;
+  return seed / 1073741823.5 - 1.0;
 }
 
-// 1. Generate 65-second Cinematic Ambient Music Bed (D Minor9 / Asus4 / BbMaj7 / Dm9 progression)
-function generateAmbientMusic(outDir: string) {
+// 1. Generate 65-second Cinematic Ambient Music Bed
+function generateAmbientMusic(outDir) {
   const duration = 65;
   const totalSamples = SAMPLE_RATE * duration;
   const left = new Float32Array(totalSamples);
   const right = new Float32Array(totalSamples);
 
-  // Frequencies for lush cinematic chords across the 6 scenes
   const chords = [
-    // Scene 1 (0-7s): Cosmic D Minor 9 (D2, A2, F3, A3, C4, E4)
     [73.42, 110.0, 174.61, 220.0, 261.63, 329.63],
-    // Scene 2 (7-18s): Forest Warm Bb Major 9 (Bb1, F2, D3, F3, A3, C4)
     [58.27, 87.31, 146.83, 174.61, 220.0, 261.63],
-    // Scene 3 (18-30s): Ocean Deep F Major 7 / C (C2, F2, A2, C3, E3, G3)
     [65.41, 87.31, 110.0, 130.81, 164.81, 196.0],
-    // Scene 4 (30-42s): Mountain Majestic G Minor 7 / C9 (G1, D2, Bb2, F3, A3, D4)
     [49.0, 73.42, 116.54, 174.61, 220.0, 293.66],
-    // Scene 5 (42-55s): Cycle of Life A7sus4 -> Dm (A1, E2,A2, D3, E3, G3)
     [55.0, 82.41, 110.0, 146.83, 164.81, 196.0],
-    // Scene 6 (55-65s): Resolution D Major / Minor ethereal (D2, A2, D3, F#3, A3, D4)
     [73.42, 110.0, 146.83, 185.0, 220.0, 293.66],
   ];
 
@@ -87,12 +74,10 @@ function generateAmbientMusic(outDir: string) {
   for (let i = 0; i < totalSamples; i++) {
     const t = i / SAMPLE_RATE;
 
-    // Master fade in (0-2.5s) and fade out (60-65s)
     let masterEnv = 1.0;
     if (t < 2.5) masterEnv = t / 2.5;
     else if (t > 60) masterEnv = Math.max(0, (65 - t) / 5.0);
 
-    // Blend smoothly between scene chords (2.5s crossfade window)
     let sampleL = 0;
     let sampleR = 0;
 
@@ -112,7 +97,6 @@ function generateAmbientMusic(outDir: string) {
         let chordR = 0;
         for (let n = 0; n < freqs.length; n++) {
           const f = freqs[n];
-          // Slow chorus detune & LFO breathing
           const lfoL = Math.sin(2 * Math.PI * (0.12 + n * 0.03) * t + n);
           const lfoR = Math.cos(2 * Math.PI * (0.11 + n * 0.04) * t + n * 1.4);
           const amp = n < 2 ? 0.16 : 0.08 / (n * 0.45);
@@ -132,14 +116,12 @@ function generateAmbientMusic(outDir: string) {
       }
     }
 
-    // Gentle high crystalline pulse melody (scientific documentary motif)
     const motifFreqs = [587.33, 659.25, 523.25, 440.0, 587.33, 880.0];
     const beatIndex = Math.floor(t / 2.0) % motifFreqs.length;
     const beatPhase = (t % 2.0) / 2.0;
     const noteEnv = Math.exp(-beatPhase * 5.5) * Math.min(1, beatPhase * 35);
     const motifFreq = motifFreqs[beatIndex];
-    const bell =
-      Math.sin(2 * Math.PI * motifFreq * t) * 0.045 * noteEnv;
+    const bell = Math.sin(2 * Math.PI * motifFreq * t) * 0.045 * noteEnv;
 
     left[i] = (sampleL + bell * 0.9) * masterEnv * 0.65;
     right[i] = (sampleR + bell * 1.1) * masterEnv * 0.65;
@@ -148,8 +130,8 @@ function generateAmbientMusic(outDir: string) {
   writeWavFile(path.join(outDir, 'ambient-music.wav'), left, right);
 }
 
-// 2. Generate Natural Forest Ambience (13s — Filtered Breeze + Tropical Bird Calls)
-function generateForestAmbience(outDir: string) {
+// 2. Generate Natural Forest Ambience (13s)
+function generateForestAmbience(outDir) {
   const duration = 13;
   const totalSamples = SAMPLE_RATE * duration;
   const left = new Float32Array(totalSamples);
@@ -158,7 +140,6 @@ function generateForestAmbience(outDir: string) {
   let lpL = 0;
   let lpR = 0;
 
-  // Bird chirp schedule (timeSec, baseFreq, chirpDuration)
   const chirps = [
     {t0: 1.2, f0: 2400, f1: 3100, dur: 0.22, pan: 0.3},
     {t0: 1.5, f0: 2500, f1: 3250, dur: 0.18, pan: 0.3},
@@ -175,7 +156,6 @@ function generateForestAmbience(outDir: string) {
     const env =
       t < 1.2 ? t / 1.2 : t > duration - 1.2 ? (duration - t) / 1.2 : 1.0;
 
-    // Rustling leaves filtered pink/brown breeze
     const breezeMod = 0.55 + 0.45 * Math.sin(2 * Math.PI * 0.28 * t);
     lpL = lpL * 0.94 + nextNoise() * 0.06;
     lpR = lpR * 0.94 + nextNoise() * 0.06;
@@ -186,7 +166,8 @@ function generateForestAmbience(outDir: string) {
       if (t >= c.t0 && t <= c.t0 + c.dur) {
         const p = (t - c.t0) / c.dur;
         const cEnv = Math.sin(Math.PI * p);
-        const freq = c.f0 + (c.f1 - c.f0) * p + Math.sin(2 * Math.PI * 35 * t) * 45;
+        const freq =
+          c.f0 + (c.f1 - c.f0) * p + Math.sin(2 * Math.PI * 35 * t) * 45;
         const sig = Math.sin(2 * Math.PI * freq * t) * cEnv * 0.08;
         birdL += sig * (1 - c.pan);
         birdR += sig * c.pan;
@@ -200,8 +181,8 @@ function generateForestAmbience(outDir: string) {
   writeWavFile(path.join(outDir, 'forest-ambience.wav'), left, right);
 }
 
-// 3. Generate Ocean Underwater Ambience (14s — Deep Sub-Aquatic Currents & Bubbles)
-function generateOceanAmbience(outDir: string) {
+// 3. Generate Ocean Underwater Ambience (14s)
+function generateOceanAmbience(outDir) {
   const duration = 14;
   const totalSamples = SAMPLE_RATE * duration;
   const left = new Float32Array(totalSamples);
@@ -215,13 +196,14 @@ function generateOceanAmbience(outDir: string) {
     const env =
       t < 1.5 ? t / 1.5 : t > duration - 1.5 ? (duration - t) / 1.5 : 1.0;
 
-    // Heavy low-pass filter for underwater rumble
     deepL = deepL * 0.992 + nextNoise() * 0.008;
     deepR = deepR * 0.992 + nextNoise() * 0.008;
 
     const waveSwell = 0.6 + 0.4 * Math.sin(2 * Math.PI * 0.18 * t);
     const subSonar =
-      Math.sin(2 * Math.PI * 65.41 * t) * 0.07 * Math.sin(2 * Math.PI * 0.12 * t);
+      Math.sin(2 * Math.PI * 65.41 * t) *
+      0.07 *
+      Math.sin(2 * Math.PI * 0.12 * t);
 
     left[i] = (deepL * 1.4 * waveSwell + subSonar) * env;
     right[i] = (deepR * 1.4 * waveSwell + subSonar) * env;
@@ -231,7 +213,7 @@ function generateOceanAmbience(outDir: string) {
 }
 
 // 4. Generate High-Altitude Mountain Wind Ambience (14s)
-function generateWindAmbience(outDir: string) {
+function generateWindAmbience(outDir) {
   const duration = 14;
   const totalSamples = SAMPLE_RATE * duration;
   const left = new Float32Array(totalSamples);
@@ -257,7 +239,6 @@ function generateWindAmbience(outDir: string) {
     lp1R = lp1R * 0.975 + nR * 0.025;
     lp2R = lp2R * 0.985 + lp1R * 0.015;
 
-    // Resonant whistling wind harmonic
     const whistle =
       Math.sin(2 * Math.PI * (340 + 40 * gust) * t) * 0.025 * gust;
 
@@ -268,8 +249,8 @@ function generateWindAmbience(outDir: string) {
   writeWavFile(path.join(outDir, 'wind-ambience.wav'), left, right);
 }
 
-// 5. Generate Subtle Cinematic Title Impact (3.2s — Deep Sub Boom + Shimmer)
-function generateCinematicImpact(outDir: string) {
+// 5. Generate Subtle Cinematic Title Impact (3.2s)
+function generateCinematicImpact(outDir) {
   const duration = 3.2;
   const totalSamples = SAMPLE_RATE * duration;
   const left = new Float32Array(totalSamples);
@@ -281,17 +262,14 @@ function generateCinematicImpact(outDir: string) {
   for (let i = 0; i < totalSamples; i++) {
     const t = i / SAMPLE_RATE;
 
-    // Pitch-dropping sub-bass boom (110Hz -> 36Hz)
     const boomEnv = Math.exp(-t * 2.4) * Math.min(1, t * 80);
     const phase = 2 * Math.PI * (36 * t + 18 * (1 - Math.exp(-t * 4.5)));
     const subBoom = Math.sin(phase) * 0.55 * boomEnv;
 
-    // Warm filtered impact whoosh
     lpL = lpL * 0.96 + nextNoise() * 0.04;
     lpR = lpR * 0.96 + nextNoise() * 0.04;
     const whooshEnv = Math.exp(-t * 1.8) * Math.min(1, t * 25);
 
-    // Ethereal fifth shimmer (D4 + A4)
     const shimmerEnv = Math.exp(-t * 1.2) * Math.min(1, t * 12);
     const shimmer =
       (Math.sin(2 * Math.PI * 293.66 * t) +
