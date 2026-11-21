@@ -1,5 +1,5 @@
 import React from 'react';
-import {Composition} from 'remotion';
+import {Composition, staticFile} from 'remotion';
 import {MainVideo, MainVideoProps} from './MainVideo';
 
 export const RemotionRoot: React.FC = () => {
@@ -13,7 +13,13 @@ export const RemotionRoot: React.FC = () => {
         width={1920}
         height={1080}
         defaultProps={{
-          audioUrls: {},
+          audioUrls: {
+            ambientMusicUrl: staticFile('audio/ambient-music.wav'),
+            forestAmbienceUrl: staticFile('audio/forest-ambience.wav'),
+            oceanAmbienceUrl: staticFile('audio/ocean-ambience.wav'),
+            windAmbienceUrl: staticFile('audio/wind-ambience.wav'),
+            cinematicImpactUrl: staticFile('audio/impact.wav'),
+          },
         } satisfies MainVideoProps}
       />
     </>

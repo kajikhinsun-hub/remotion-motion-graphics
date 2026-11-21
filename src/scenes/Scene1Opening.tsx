@@ -103,12 +103,11 @@ export const Scene1Opening: React.FC<{durationInFrames: number}> = ({
         <div
           style={{
             position: 'absolute',
-            width: 820,
-            height: 820,
+            width: 860,
+            height: 860,
             borderRadius: '50%',
             background:
-              'radial-gradient(circle at 50% 35%, rgba(56, 189, 248, 0.25), rgba(13, 148, 136, 0.08) 55%, transparent 72%)',
-            filter: 'blur(25px)',
+              'radial-gradient(circle at 50% 35%, rgba(56, 189, 248, 0.28) 0%, rgba(13, 148, 136, 0.1) 48%, transparent 70%)',
             opacity: earthGlow,
           }}
         />

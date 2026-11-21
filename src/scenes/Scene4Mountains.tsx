@@ -73,13 +73,12 @@ export const Scene4Mountains: React.FC<{durationInFrames: number}> = ({
           position: 'absolute',
           top: '34%',
           left: '58%',
-          width: 760,
-          height: 460,
+          width: 820,
+          height: 520,
           transform: 'translate(-50%, -50%)',
           borderRadius: '50%',
           background:
-            'radial-gradient(circle, rgba(212, 163, 115, 0.35) 0%, rgba(56, 189, 248, 0.12) 55%, transparent 75%)',
-          filter: 'blur(30px)',
+            'radial-gradient(circle, rgba(212, 163, 115, 0.34) 0%, rgba(56, 189, 248, 0.12) 48%, transparent 72%)',
         }}
       />
 

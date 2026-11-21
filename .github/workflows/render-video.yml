@@ -8,7 +8,7 @@ on:
 
 jobs:
   render:
-    name: Render 65s Documentary (Keajaiban Alam Semesta)
+    name: Render 65s Documentary with Full Soundscape & Mobile H.264
     runs-on: ubuntu-latest
 
     steps:
@@ -20,10 +20,10 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install Linux Dependencies for Headless Chrome (Ubuntu 22.04 / 24.04)
+      - name: Install Linux Dependencies for Headless Chrome & FFmpeg (Ubuntu 22.04 / 24.04)
         run: |
           sudo apt-get update
-          sudo apt-get install -y \
+          sudo apt-get install -y ffmpeg \
             libnss3 \
             libdbus-1-3 \
             libatk1.0-0t64 \
@@ -38,7 +38,7 @@ jobs:
             libpango-1.0-0 \
             libcairo2 \
             libcups2t64 || \
-          sudo apt-get install -y \
+          sudo apt-get install -y ffmpeg \
             libnss3 \
             libdbus-1-3 \
             libatk1.0-0 \
@@ -57,18 +57,37 @@ jobs:
       - name: Install NPM Packages
         run: npm install
 
+      - name: Generate 5 Multi-Channel Soundscape WAV Tracks
+        run: node scripts/generate-audio.mjs
+
       - name: Typecheck Project
         run: npx tsc --noEmit
 
       - name: Ensure Remotion Browser
         run: npx remotion browser ensure
 
-      - name: Render Video (MP4 - 1920x1080 @ 30fps, 65s)
-        run: npx remotion render src/index.ts MainVideo out/keajaiban-alam-semesta.mp4 --concurrency=100%
+      - name: Render Video (Raw Remotion MP4)
+        run: |
+          npx remotion render src/index.ts MainVideo out/raw-render.mp4 \
+            --codec=h264 \
+            --pixel-format=yuv420p \
+            --audio-codec=aac \
+            --concurrency=2
+
+      - name: Optimize MP4 Stream for Mobile & Universal Hardware Decoders (No Freeze / Faststart)
+        run: |
+          ffmpeg -y -i out/raw-render.mp4 \
+            -c:v libx264 -profile:v high -level:v 4.1 -pix_fmt yuv420p \
+            -preset medium -crf 18 -g 30 -keyint_min 30 -sc_threshold 0 \
+            -r 30 -vsync cfr \
+            -c:a aac -b:a 192k -ar 44100 \
+            -movflags +faststart \
+            out/keajaiban-alam-semesta.mp4
+          ls -lh out/keajaiban-alam-semesta.mp4
 
       - name: Upload Video as GitHub Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: keajaiban-alam-semesta-mp4
+          name: keajaiban-alam-semesta-with-audio-mp4
           path: out/keajaiban-alam-semesta.mp4
           retention-days: 14
