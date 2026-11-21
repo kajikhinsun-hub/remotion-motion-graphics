@@ -7,12 +7,13 @@ on:
     paths:
       - 'src/poster/**'
       - 'public/images/**'
+      - 'scripts/generate-poster-audio.mjs'
       - '.github/workflows/render-poster.yml'
   workflow_dispatch:
 
 jobs:
   render:
-    name: Render GAMESDAPP Poster Animation (1080x1350)
+    name: Render High-Energy GAMESDAPP Poster + Gaming BGM (1080x1350)
     runs-on: ubuntu-latest
 
     steps:
@@ -61,26 +62,33 @@ jobs:
       - name: Install NPM Packages
         run: npm install
 
+      - name: Generate 128 BPM Gaming Synthwave BGM & Frame-Synced SFX
+        run: |
+          node scripts/generate-poster-audio.mjs
+          ls -lh public/audio/poster-bgm.wav
+
       - name: Typecheck Project
         run: npx tsc --noEmit
 
       - name: Ensure Remotion Browser
         run: npx remotion browser ensure
 
-      - name: Render Poster Animation (Raw)
+      - name: Render Poster Animation with Audio (Raw)
         run: |
           npx remotion render src/poster/index.ts PosterAnimation out/poster-raw.mp4 \
             --codec=h264 \
             --pixel-format=yuv420p \
+            --audio-codec=aac \
             --jpeg-quality=95 \
             --concurrency=2
 
-      - name: Optimize MP4 for Mobile (Faststart, CFR 30fps)
+      - name: Optimize MP4 + AAC Audio for Mobile (Faststart, CFR 30fps)
         run: |
           ffmpeg -y -i out/poster-raw.mp4 \
             -c:v libx264 -profile:v high -level:v 4.1 -pix_fmt yuv420p \
             -preset medium -crf 16 -g 30 -keyint_min 30 -sc_threshold 0 \
-            -r 30 -vsync cfr -an \
+            -r 30 -vsync cfr \
+            -c:a aac -b:a 192k -ar 44100 \
             -movflags +faststart \
             out/gamesdapp-poster-animation.mp4
           ls -lh out/gamesdapp-poster-animation.mp4
@@ -88,6 +96,6 @@ jobs:
       - name: Upload Video as GitHub Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: gamesdapp-poster-animation-mp4
+          name: gamesdapp-poster-high-energy-with-bgm-mp4
           path: out/gamesdapp-poster-animation.mp4
           retention-days: 14
