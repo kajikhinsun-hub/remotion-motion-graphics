@@ -1,0 +1,21 @@
+{
+  "name": "remotion-motion-graphics",
+  "version": "1.0.0",
+  "description": "Project video motion graphics menggunakan Remotion dan GitHub Actions",
+  "private": true,
+  "scripts": {
+    "dev": "remotion studio",
+    "build": "remotion render MainVideo out/video.mp4",
+    "upgrade": "remotion upgrade"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.242",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "remotion": "^4.0.242"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.3",
+    "typescript": "^5.5.4"
+  }
+}
