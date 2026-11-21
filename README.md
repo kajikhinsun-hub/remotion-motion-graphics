@@ -29,3 +29,14 @@ Mendukung sinkronisasi 5 kanal audio melalui `defaultProps.audioUrls`:
 - `oceanAmbienceUrl` — Ambience bawah laut (Scene 3: 18–30 detik).
 - `windAmbienceUrl` — Ambience angin pegunungan (Scene 4: 30–42 detik).
 - `cinematicImpactUrl` — Efek impact sinematik tepat pada frame kemunculan setiap judul utama (`[38, 228, 558, 918, 1270, 1682]`).
+
+## Animasi Poster GAMESDAPP (`PosterAnimation`)
+
+Poster `public/images/poster.jpg` (736×920) dianimasikan menjadi video **1080×1350 (4:5)**, 30 FPS, 10 detik (300 frame), tanpa audio.
+
+- **Entry point terpisah:** `src/poster/index.ts` → komposisi `PosterAnimation` di `src/poster/PosterAnimation.tsx`.
+- **Cara kerja:** poster dipotong menjadi layer (header, 6 kartu layanan, 4 ikon keunggulan, tombol CTA, pil website) yang ditumpuk di posisi aslinya dengan tepi lembut. Layer masuk bertahap (spring), lalu melayang, berdenyut, dan berkilau dalam loop mulus. Ditambah cincin energi hijau di bawah controller, partikel hijau melayang, dan zoom kamera halus.
+- **Preview lokal:** `npm run dev:poster`
+- **Render lokal:** `npm run build:poster` (hasil: `out/poster.mp4`)
+- **GitHub Actions:** workflow `.github/workflows/render-poster.yml` (otomatis saat `src/poster/**` atau `public/images/**` berubah, atau manual lewat **Run workflow**). Hasil: artifact `gamesdapp-poster-animation-mp4`.
+- **Ganti poster:** timpa `public/images/poster.jpg` dengan gambar berukuran sama (736×920). Jika ukuran berbeda, sesuaikan konstanta `SRC_W`/`SRC_H` serta koordinat kotak di `PosterAnimation.tsx`.

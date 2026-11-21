@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - 'src/poster/**'
+      - 'public/images/**'
+      - '.github/workflows/render-poster.yml'
   workflow_dispatch:
 
 jobs:

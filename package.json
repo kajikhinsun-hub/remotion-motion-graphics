@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "remotion studio",
     "build": "remotion render MainVideo out/video.mp4",
+    "dev:poster": "remotion studio src/poster/index.ts",
+    "build:poster": "remotion render src/poster/index.ts PosterAnimation out/poster.mp4 --jpeg-quality=95",
     "upgrade": "remotion upgrade"
   },
   "dependencies": {
