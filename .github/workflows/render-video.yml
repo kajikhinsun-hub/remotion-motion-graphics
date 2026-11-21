@@ -5,23 +5,10 @@ on:
     branches:
       - main
   workflow_dispatch:
-    inputs:
-      titleText:
-        description: 'Judul Utama Video'
-        required: true
-        default: 'Motion Graphics Otomatis'
-      subtitleText:
-        description: 'Subjudul Video'
-        required: true
-        default: 'Dirender di Cloud via GitHub Actions'
-      accentColor:
-        description: 'Warna Aksen (Hex)'
-        required: true
-        default: '#38bdf8'
 
 jobs:
   render:
-    name: Render MP4 with Remotion
+    name: Render 65s Documentary (Keajaiban Alam Semesta)
     runs-on: ubuntu-latest
 
     steps:
@@ -70,28 +57,18 @@ jobs:
       - name: Install NPM Packages
         run: npm install
 
+      - name: Typecheck Project
+        run: npx tsc --noEmit
+
       - name: Ensure Remotion Browser
         run: npx remotion browser ensure
 
-      - name: Create Props JSON
-        env:
-          TITLE_TEXT: ${{ github.event.inputs.titleText || 'Motion Graphics Otomatis' }}
-          SUBTITLE_TEXT: ${{ github.event.inputs.subtitleText || 'Dirender dengan Remotion & GitHub Actions' }}
-          ACCENT_COLOR: ${{ github.event.inputs.accentColor || '#38bdf8' }}
-        run: |
-          jq -n \
-            --arg title "$TITLE_TEXT" \
-            --arg subtitle "$SUBTITLE_TEXT" \
-            --arg color "$ACCENT_COLOR" \
-            '{titleText: $title, subtitleText: $subtitle, accentColor: $color}' > props.json
-          cat props.json
-
-      - name: Render Video (MP4)
-        run: npx remotion render src/index.ts MainVideo out/video.mp4 --props=./props.json
+      - name: Render Video (MP4 - 1920x1080 @ 30fps, 65s)
+        run: npx remotion render src/index.ts MainVideo out/keajaiban-alam-semesta.mp4 --concurrency=100%
 
       - name: Upload Video as GitHub Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: rendered-motion-graphics
-          path: out/video.mp4
+          name: keajaiban-alam-semesta-mp4
+          path: out/keajaiban-alam-semesta.mp4
           retention-days: 14
