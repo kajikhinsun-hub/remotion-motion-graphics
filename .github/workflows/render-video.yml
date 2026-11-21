@@ -8,7 +8,7 @@ on:
 
 jobs:
   render:
-    name: Render 65s Documentary with Full Soundscape & Mobile H.264
+    name: Render 65s Documentary with Indonesian Narrator VO & Full Soundscape
     runs-on: ubuntu-latest
 
     steps:
@@ -23,7 +23,7 @@ jobs:
       - name: Install Linux Dependencies for Headless Chrome & FFmpeg (Ubuntu 22.04 / 24.04)
         run: |
           sudo apt-get update
-          sudo apt-get install -y ffmpeg \
+          sudo apt-get install -y ffmpeg python3-pip \
             libnss3 \
             libdbus-1-3 \
             libatk1.0-0t64 \
@@ -38,7 +38,7 @@ jobs:
             libpango-1.0-0 \
             libcairo2 \
             libcups2t64 || \
-          sudo apt-get install -y ffmpeg \
+          sudo apt-get install -y ffmpeg python3-pip \
             libnss3 \
             libdbus-1-3 \
             libatk1.0-0 \
@@ -59,6 +59,12 @@ jobs:
 
       - name: Generate 5 Multi-Channel Soundscape WAV Tracks
         run: node scripts/generate-audio.mjs
+
+      - name: Generate Indonesian Documentary Narrator Voiceover (Neural TTS)
+        run: |
+          pip install --break-system-packages edge-tts gTTS || pip install edge-tts gTTS
+          python3 scripts/generate-voiceover.py
+          ls -lh public/audio/vo/
 
       - name: Typecheck Project
         run: npx tsc --noEmit
@@ -88,6 +94,6 @@ jobs:
       - name: Upload Video as GitHub Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: keajaiban-alam-semesta-with-audio-mp4
+          name: keajaiban-alam-semesta-narrated-mp4
           path: out/keajaiban-alam-semesta.mp4
           retention-days: 14
