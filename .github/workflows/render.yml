@@ -1,10 +1,10 @@
-name: Generate Lockfile & Render Video
+name: Render Kinetic Typography Video
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
-  workflow_dispatch:
 
 jobs:
   render:
@@ -20,6 +20,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
 
       - name: Install Linux Dependencies for Headless Chrome & FFmpeg
         run: |
@@ -55,21 +56,8 @@ jobs:
             libcairo2 \
             libcups2
 
-      - name: Install Dependencies (npm ci or generate package-lock.json)
-        run: |
-          if [ -f package-lock.json ]; then
-            npm ci
-          else
-            npm install --package-lock-only
-            npm ci
-          fi
-
-      - name: Upload package-lock.json Artifact (if needed)
-        uses: actions/upload-artifact@v4
-        with:
-          name: package-lock-json
-          path: package-lock.json
-          retention-days: 7
+      - name: Install Dependencies (npm ci)
+        run: npm ci
 
       - name: Run TypeScript Typecheck (npx tsc --noEmit)
         run: npx tsc --noEmit
@@ -95,14 +83,7 @@ jobs:
 
       - name: Render Full Vertical MP4 Video (1080x1920 @ 30fps, 1147 frames)
         run: |
-          npx remotion render Main out/raw-video.mp4 --concurrency=2
-          ffmpeg -y -i out/raw-video.mp4 \
-            -c:v libx264 -profile:v high -level:v 4.1 -pix_fmt yuv420p \
-            -preset medium -crf 17 -g 30 -keyint_min 30 -sc_threshold 0 \
-            -r 30 -vsync cfr \
-            -c:a aac -b:a 192k -ar 44100 \
-            -movflags +faststart \
-            out/video.mp4
+          npx remotion render Main out/video.mp4 --concurrency=2
           ls -lh out/video.mp4
 
       - name: Upload Rendered MP4 Video Artifact

@@ -24,20 +24,20 @@ export const Scene02: React.FC = () => {
 
   // Drawn line path that sparks the "AGI" reveal
   const fusePath = 'M 140 980 L 540 980 L 940 980';
-  const lineProgress = interpolate(frame, [10, 36], [0, 1], {
+  const lineProgress = interpolate(frame, [0, 18], [0.35, 1], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
   });
   const evolved = evolvePath(lineProgress, fusePath);
 
-  // "AGI" hero word spring at frame 28
-  const agiLocal = frame - 28;
+  // "AGI" hero word spring
+  const agiLocal = frame + 4;
   const agiSpring = spring({
     frame: agiLocal,
     fps,
     config: {damping: 10, stiffness: 180},
   });
-  const agiBlur = interpolate(agiLocal, [0, 4], [16, 0], {
+  const agiBlur = interpolate(frame, [0, 3], [4, 0], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
   });
@@ -52,7 +52,7 @@ export const Scene02: React.FC = () => {
     });
   }, []);
 
-  const sparkProgress = interpolate(frame, [26, 62], [0, 1], {
+  const sparkProgress = interpolate(frame, [0, 38], [0.22, 1], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
   });
@@ -87,10 +87,10 @@ export const Scene02: React.FC = () => {
         }}
       >
         {TEXT_CONTENT.scene02.terminalLines.map((line, idx) => {
-          const lineStart = idx * 10;
+          const lineStart = idx * 8;
           const charsToShow = Math.max(
             0,
-            Math.floor((frame - lineStart) * 2.4)
+            Math.floor((frame + 14 - lineStart) * 2.4)
           );
           const visibleText = line.slice(0, charsToShow);
           return (

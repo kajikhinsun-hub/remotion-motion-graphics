@@ -123,18 +123,18 @@ export const Scene10: React.FC = () => {
         />
       </AbsoluteFill>
 
-      {/* 2. Large Blue & Gold Audio Waveform Behind/Around Character Upper Body */}
+      {/* 2. Large Blue & Gold Audio Waveform around Lower-Mid Frame (below chin/mic, above lyrics) so face stays 100% clear */}
       <div
         style={{
           position: 'absolute',
-          top: 560,
+          top: 990,
           left: 80,
           right: 80,
           display: 'flex',
           justifyContent: 'center',
           mixBlendMode: 'multiply',
-          opacity: 0.78 + amplitude * 0.2,
-          transform: `translate(${-parallaxX * 1.4}px, 0px)`,
+          opacity: 0.65 + amplitude * 0.25,
+          transform: `translate(${-parallaxX * 1.3}px, 0px)`,
           pointerEvents: 'none',
         }}
       >
@@ -143,7 +143,7 @@ export const Scene10: React.FC = () => {
           color={PALETTE.electricBlue}
           secondaryColor={PALETTE.goldAccent}
           width={920}
-          height={420}
+          height={260}
           barCount={36}
           glow={false}
         />
