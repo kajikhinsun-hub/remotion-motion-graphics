@@ -1,23 +1,26 @@
 {
-  "name": "remotion-motion-graphics",
+  "name": "remotion-kinetic-typography-vertical",
   "version": "1.0.0",
-  "description": "Project video motion graphics menggunakan Remotion dan GitHub Actions",
+  "description": "Vertical 9:16 2D Kinetic Typography & Audio-Synced Motion Graphics in Remotion",
   "private": true,
   "scripts": {
-    "dev": "remotion studio",
-    "build": "remotion render MainVideo out/video.mp4",
-    "dev:poster": "remotion studio src/poster/index.ts",
-    "build:poster": "remotion render src/poster/index.ts PosterAnimation out/poster.mp4 --jpeg-quality=95",
-    "upgrade": "remotion upgrade"
+    "start": "remotion studio",
+    "build": "remotion render Main out/video.mp4 --concurrency=2",
+    "still": "remotion still Main out/still.png --frame=90",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@remotion/cli": "^4.0.242",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "remotion": "^4.0.242"
+    "@remotion/cli": "4.0.242",
+    "@remotion/google-fonts": "4.0.242",
+    "@remotion/media-utils": "4.0.242",
+    "@remotion/noise": "4.0.242",
+    "@remotion/paths": "4.0.242",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "remotion": "4.0.242"
   },
   "devDependencies": {
-    "@types/react": "^18.3.3",
-    "typescript": "^5.5.4"
+    "@types/react": "18.3.3",
+    "typescript": "5.5.4"
   }
 }
