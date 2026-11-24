@@ -1,0 +1,9 @@
+{
+  "name": "Remotion + OpenCode",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:20",
+  "postCreateCommand": "curl -fsSL https://opencode.ai/install | bash && echo 'export PATH=\"$HOME/.opencode/bin:$PATH\"' >> ~/.bashrc && npm install",
+  "remoteEnv": {
+    "PATH": "${containerEnv:PATH}:/home/node/.opencode/bin"
+  },
+  "forwardPorts": [3000]
+}
